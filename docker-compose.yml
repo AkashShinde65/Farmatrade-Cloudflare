@@ -20,8 +20,6 @@ services:
   auth-service:
     build: ./auth-service
     image: farmatrade-auth-service:latest
-    volumes:
-      - ./auth-service/keys/private_key.pem:/app/keys/private_key.pem:ro
     depends_on:
       auth-mysql:
         condition: service_healthy
@@ -34,13 +32,11 @@ services:
       DB_PASSWORD: ${AUTH_DB_PASSWORD:-change-me-auth}
       INTERNAL_SERVICE_TOKEN: ${INTERNAL_SERVICE_TOKEN:-change-me-internal-token}
       OTP_SERVICE_BASE_URL: http://otp-service:8086
-      AUTH_JWT_ALLOW_EPHEMERAL_KEY: "false"
-      AUTH_RSA_PRIVATE_KEY_FILE: /app/keys/private_key.pem
-
+      AUTH_JWT_ALLOW_EPHEMERAL_KEY: "true"
       INITIAL_ADMIN_NAME: ${INITIAL_ADMIN_NAME:-Admin}
-      INITIAL_ADMIN_EMAIL: ${INITIAL_ADMIN_EMAIL:-admin@example.com}
+      INITIAL_ADMIN_EMAIL: luckakash65@gmail.com
       INITIAL_ADMIN_MOBILE: ${INITIAL_ADMIN_MOBILE:-9000000000}
-      INITIAL_ADMIN_PASSWORD: ${INITIAL_ADMIN_PASSWORD:-change-me-admin}
+      INITIAL_ADMIN_PASSWORD: Akash@1998
       INITIAL_ADMIN_AADHAAR: ${INITIAL_ADMIN_AADHAAR:-900000000002}
     ports:
       - "8081:8081"
@@ -78,6 +74,7 @@ services:
       lot-mysql:
         condition: service_healthy
     environment:
+      AUTH_JWKS_URI: http://auth-service:8081/.well-known/jwks.json
       SERVER_PORT: 8082
       DB_URL: jdbc:mysql://lot-mysql:3306/farmatrade_lot?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       DB_USERNAME: root
@@ -119,6 +116,7 @@ services:
         condition: service_healthy
     environment:
       SERVER_PORT: 8083
+      AUTH_JWKS_URI: http://auth-service:8081/.well-known/jwks.json
       DB_HOST: bidding-mysql
       DB_PORT: 3306
       DB_NAME: farmatrade_bidding
@@ -264,11 +262,7 @@ services:
     build:
       context: ./frontend
       args:
-        REACT_APP_AUTH_URL: ${REACT_APP_AUTH_URL:-http://localhost:8081}
-        REACT_APP_LOT_URL: ${REACT_APP_LOT_URL:-http://localhost:8082}
-        REACT_APP_BIDDING_URL: ${REACT_APP_BIDDING_URL:-http://localhost:8083}
-        REACT_APP_LOGISTICS_URL: ${REACT_APP_LOGISTICS_URL:-http://localhost:8084}
-        REACT_APP_BILLING_URL: ${REACT_APP_BILLING_URL:-http://localhost:8085}
+        REACT_APP_AUTH_URL: http://localhost:8081
     image: farmatrade-frontend:latest
     depends_on:
       auth-service:

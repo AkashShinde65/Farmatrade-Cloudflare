@@ -1,11 +1,5 @@
-bin
-obj
-.git
-.gitignore
-.vscode
-.idea
-*.user
-*.suo
-.DS_Store
+bin/
+obj/
+.git/
+.vscode/
 .env
-.env.*
